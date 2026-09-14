@@ -69,15 +69,17 @@ def list_categories(
 
 
 if __name__ == "__main__":
+    import os
+
     import uvicorn
 
-    # log_config 让 uvicorn(含 reload 主进程) 的启动日志也走结构化 JSON；
-    # access_log=False 关闭 uvicorn 自带访问日志，由中间件统一打 JSON（且已排除 /metrics）
+    # log_config 让 uvicorn 采用我们的配置（uvicorn.access 挂 null handler，不外打访问日志）；
+    # access_log=False 双保险；容器内 reload 关闭，本地开发用 UVICORN_RELOAD=1 开启。
     uvicorn.run(
         "main:app",
-        host="127.0.0.1",
+        host="0.0.0.0",
         port=8000,
-        reload=True,
+        reload=os.getenv("UVICORN_RELOAD", "0") == "1",
         access_log=False,
         log_config=LOGGING_CONFIG,
     )
