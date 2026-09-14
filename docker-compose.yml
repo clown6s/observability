@@ -71,6 +71,7 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
       - ./deploy/lgtm/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./deploy/lgtm/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
       - grafana-data:/var/lib/grafana
     depends_on:
       - loki

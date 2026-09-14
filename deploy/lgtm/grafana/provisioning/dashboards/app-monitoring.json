@@ -1,0 +1,47 @@
+{
+  "uid": "app-monitoring",
+  "title": "FastAPI 应用监控",
+  "tags": ["observability"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "CPU 使用率 (%)",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        { "refId": "A", "expr": "rate(process_cpu_seconds_total{job=\"fastapi-app\"}[5m]) * 100" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "进程内存 (MB)",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        { "refId": "A", "expr": "process_resident_memory_bytes{job=\"fastapi-app\"} / 1024 / 1024" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "GC 存活对象数",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "targets": [
+        { "refId": "A", "expr": "python_gc_objects_collected" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "空闲内存 (GB)",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "targets": [
+        { "refId": "A", "expr": "process_runtime_cpython_free_bytes{job=\"fastapi-app\"} / 1024 / 1024 / 1024" }
+      ]
+    }
+  ]
+}

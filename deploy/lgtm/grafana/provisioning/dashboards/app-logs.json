@@ -1,0 +1,24 @@
+{
+  "uid": "app-logs",
+  "title": "应用日志",
+  "tags": ["observability"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "panels": [
+    {
+      "type": "logs",
+      "title": "实时日志",
+      "datasource": { "type": "loki", "uid": "loki" },
+      "gridPos": { "h": 16, "w": 24, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "{container=\"fastapi-app\"}",
+          "datasource": { "type": "loki", "uid": "loki" }
+        }
+      ]
+    }
+  ]
+}
