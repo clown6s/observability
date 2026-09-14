@@ -1,0 +1,104 @@
+services:
+  # ---------- 日志 ----------
+  loki:
+    image: grafana/loki:3.5.0
+    container_name: loki
+    command: -config.file=/etc/loki/local-config.yaml
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki/local-config.yaml:/etc/loki/local-config.yaml:ro
+      - loki-data:/loki
+    restart: unless-stopped
+
+  # 采集 docker 容器日志（自动发现所有运行容器）
+  promtail:
+    image: grafana/promtail:3.5.0
+    container_name: promtail
+    command: -config.file=/etc/promtail/config.yml
+    volumes:
+      - ./promtail/promtail.yml:/etc/promtail/config.yml:ro
+      - ${DOCKER_DATA_DIR:-/var/lib/docker}/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - loki
+    restart: unless-stopped
+
+  # ---------- 指标 ----------
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    container_name: prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  # ---------- 链路追踪 ----------
+  tempo:
+    image: grafana/tempo:2.8.2
+    container_name: tempo
+    command: -config.file=/etc/tempo/tempo.yml
+    ports:
+      - "3200:3200"   # 查询（Grafana 数据源）
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+    volumes:
+      - ./tempo/tempo.yml:/etc/tempo/tempo.yml:ro
+      - tempo-data:/var/tempo
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+  # ---------- 看板 + 数据源 ----------
+  grafana:
+    image: grafana/grafana:12.1.1
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - loki
+      - prometheus
+      - tempo
+    restart: unless-stopped
+
+  # ---------- FastAPI 应用 ----------
+  fastapi-app:
+    build:
+      context: ../..            # compose 在 deploy/lgtm/，根目录在 ../../
+      dockerfile: Dockerfile
+    container_name: fastapi-app
+    ports:
+      - "8000:8000"
+    environment:
+      - MYSQL_HOST=10.211.55.5
+      - MYSQL_PORT=3306
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=nfg!om,j^6453decqx!109
+      - MYSQL_DB=test
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo:4317
+      - OTEL_SERVICE_NAME=fastapi-app
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - loki
+      - tempo
+    restart: unless-stopped
+
+volumes:
+  loki-data:
+  prometheus-data:
+  tempo-data:
+  grafana-data:

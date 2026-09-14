@@ -1,0 +1,7 @@
+.venv
+.git
+.gitignore
+.idea
+__pycache__
+*.pyc
+deploy

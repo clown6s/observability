@@ -1,0 +1,16 @@
+# 抓取应用指标（应用需暴露 /metrics，见 README）
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # Prometheus 自身（示例/自检）
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # FastAPI 应用（compose 服务名），抓取 /metrics
+  - job_name: fastapi-app
+    static_configs:
+      - targets: ["fastapi-app:8000"]
+    metrics_path: /metrics

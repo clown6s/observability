@@ -1,0 +1,28 @@
+# Tempo 单实例本地存储配置（轻量部署）
+server:
+  http_listen_port: 3200
+
+distributor:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+        http:
+
+storage:
+  trace:
+    backend: local
+    wal:
+      path: /var/tempo/wal
+    local:
+      path: /var/tempo/blocks
+
+metrics_generator:
+  storage:
+    path: /var/tempo/metrics
+    remote_write:
+      - url: http://prometheus:9090/api/v1/write
+        send_native_histograms: true
+
+overrides:
+  metrics_generator_processors: [service-graphs, span-metrics]

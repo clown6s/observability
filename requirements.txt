@@ -1,0 +1,22 @@
+fastapi
+uvicorn[standard]
+
+# MySQL
+sqlalchemy
+pymysql
+cryptography
+
+# Elasticsearch
+elasticsearch
+
+# 结构化日志
+structlog
+
+# 指标暴露给 Prometheus
+prometheus-client
+
+# OpenTelemetry 链路追踪（推 Tempo）
+opentelemetry-api
+opentelemetry-sdk
+opentelemetry-exporter-otlp-proto-grpc
+opentelemetry-instrumentation-fastapi
