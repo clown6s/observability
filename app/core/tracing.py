@@ -25,11 +25,15 @@ def _add_trace_context(logger, method_name, event_dict):
     return event_dict
 
 
+def _resource(service_name: str) -> Resource:
+    """合并 SDK 默认资源（含 env），并强制 service.name 为非 unknown 值。"""
+    name = os.getenv("OTEL_SERVICE_NAME", service_name)
+    return Resource.get_default().merge(Resource.create({SERVICE_NAME: name}))
+
+
 def setup_tracing(app: FastAPI, service_name: str = "fastapi-app") -> None:
     """初始化 TracerProvider + OTLP(→Tempo)，并给 FastAPI 自动埋点。"""
-    provider = TracerProvider(
-        resource=Resource.create({SERVICE_NAME: service_name})
-    )
+    provider = TracerProvider(resource=_resource(service_name))
     provider.add_span_processor(BatchSpanProcessor(OTLPSpanExporter(endpoint=OTLP_ENDPOINT)))
     trace.set_tracer_provider(provider)
 
