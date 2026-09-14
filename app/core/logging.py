@@ -48,6 +48,9 @@ LOGGING_CONFIG = {
     },
 }
 
+# uvicorn --log-config 加载 .py 文件时读取这个 dict，让 uvicorn 直接采用我们的配置
+LOGGING = LOGGING_CONFIG
+
 
 def setup_logging(level: int = logging.INFO) -> None:
     """用 dictConfig 接管 root 与 uvicorn 的日志输出，统一为单行 JSON。"""
