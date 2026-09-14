@@ -52,6 +52,11 @@ def setup_logging(level: int = logging.INFO) -> None:
         logger_cfg["level"] = level
     logging.config.dictConfig(config)
 
+    # 强制关闭 uvicorn 自带 access log（会覆盖我们 middleware 的 JSON 访问日志）。
+    # 不依赖 --no-access-log 参数，代码级生效。
+    logging.getLogger("uvicorn.access").disabled = True
+    logging.getLogger("uvicorn.access").propagate = False
+
     structlog.configure(
         processors=[
             structlog.contextvars.merge_contextvars,
