@@ -1,4 +1,5 @@
-# 采集所有 docker 容器日志，直推 Loki
+# 只采集 observability 这个 compose 项目的容器日志，直推 Loki
+# （避免误采宿主机上其它项目的 mysql/redis/postgres 等，并规避 Loki 拒绝过期样本）
 server:
   http_listen_port: 9080
   grpc_listen_port: 0
@@ -17,7 +18,15 @@ scrape_configs:
     docker_sd_configs:
       - host: unix:///var/run/docker.sock
         refresh_interval: 5s
+        # 只匹配本项目容器（compose 项目名 = 目录名 observability）
+        filters:
+          - name: label
+            values: ["com.docker.compose.project=observability"]
     relabel_configs:
+      # 排除 promtail 自身，避免自采噪音
+      - source_labels: ['__meta_docker_container_name']
+        regex: '/promtail'
+        action: drop
       - source_labels: ['__meta_docker_container_name']
         regex: '/(.*)'
         target_label: 'container'
