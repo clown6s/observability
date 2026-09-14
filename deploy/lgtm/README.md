@@ -2,11 +2,12 @@
 
 Loki（日志）+ Prometheus（指标）+ Tempo（链路追踪）+ Grafana（看板），并把 FastAPI 应用一起编排进栈。
 
+`docker-compose.yml` 在项目根，各服务配置在 `deploy/lgtm/` 下。
+
 ## 启动
 
 ```bash
-cd deploy/lgtm
-docker compose up -d --build   # --build 首次需构建应用镜像
+docker compose up -d --build   # 项目根执行；--build 首次需构建应用镜像
 ```
 
 ## 端口
