@@ -83,11 +83,13 @@ async def request_logging_middleware(request: Request, call_next):
     start = time.perf_counter()
     response = await call_next(request)
     duration_ms = (time.perf_counter() - start) * 1000
-    get_logger(ACCESS_LOGGER).info(
-        "request",
-        method=request.method,
-        path=request.url.path,
-        status=response.status_code,
-        duration_ms=round(duration_ms, 3),
-    )
+    # 探活/指标等高频路径不打访问日志，避免刷屏
+    if request.url.path not in {"/metrics"}:
+        get_logger(ACCESS_LOGGER).info(
+            "request",
+            method=request.method,
+            path=request.url.path,
+            status=response.status_code,
+            duration_ms=round(duration_ms, 3),
+        )
     return response

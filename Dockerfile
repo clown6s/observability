@@ -14,4 +14,4 @@ COPY . .
 # 容器内不跑 reload；日志由 main 里 setup_logging() 统一为 JSON
 EXPOSE 8000
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--no-access-log"]
