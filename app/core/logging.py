@@ -35,12 +35,16 @@ LOGGING_CONFIG = {
             # 用字符串引用而非 sys.stdout 对象，避免 uvicorn reload 子进程 pickle 报错
             "stream": "ext://sys.stdout",
         },
+        # 丢弃 uvicorn.access 的自带访问日志（比 disabled 更可靠，不依赖 uvicorn flag）
+        "null": {
+            "class": "logging.NullHandler",
+        },
     },
     "loggers": {
         "": {"handlers": ["default"], "level": logging.INFO},
         "uvicorn": {"handlers": ["default"], "level": logging.INFO, "propagate": False},
         "uvicorn.error": {"handlers": ["default"], "level": logging.INFO, "propagate": False},
-        "uvicorn.access": {"handlers": ["default"], "level": logging.INFO, "propagate": False},
+        "uvicorn.access": {"handlers": ["null"], "level": logging.INFO, "propagate": False},
     },
 }
 
