@@ -26,9 +26,9 @@ def _add_trace_context(logger, method_name, event_dict):
 
 
 def _resource(service_name: str) -> Resource:
-    """合并 SDK 默认资源（含 env），并强制 service.name 为非 unknown 值。"""
+    """确保 service.name 明确（兼容不带 get_default 的旧版 SDK）。"""
     name = os.getenv("OTEL_SERVICE_NAME", service_name)
-    return Resource.get_default().merge(Resource.create({SERVICE_NAME: name}))
+    return Resource.create({SERVICE_NAME: name})
 
 
 def setup_tracing(app: FastAPI, service_name: str = "fastapi-app") -> None:
